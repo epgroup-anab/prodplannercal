@@ -4,595 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced Production Planning System</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .tabs {
-            display: flex;
-            background: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-        }
-
-        .tab:hover {
-            background: #e9ecef;
-        }
-
-        .tab.active {
-            background: white;
-            color: #667eea;
-            border-bottom: 3px solid #667eea;
-        }
-
-        .content {
-            padding: 30px;
-            min-height: 500px;
-        }
-
-        .section {
-            display: none;
-        }
-
-        .section.active {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Upload Section */
-        .upload-area {
-            background: #f8f9fa;
-            border: 3px dashed #667eea;
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            margin-bottom: 30px;
-            transition: all 0.3s;
-        }
-
-        .upload-area:hover {
-            background: #e9ecef;
-            border-color: #764ba2;
-        }
-
-        .upload-area.dragover {
-            background: #e3f2fd;
-            border-color: #2196f3;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .upload-btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        /* Order Type Badge */
-        .order-type-badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .type-mto { 
-            background: #e3f2fd; 
-            color: #1976d2; 
-            border: 1px solid #1976d2;
-        }
-
-        .type-mts { 
-            background: #fff3e0; 
-            color: #f57c00; 
-            border: 1px solid #f57c00;
-        }
-
-        /* Stock Coverage Indicator */
-        .stock-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .stock-ok { background: #d4edda; color: #155724; }
-        .stock-warning { background: #fff3cd; color: #856404; }
-        .stock-critical { background: #f8d7da; color: #721c24; }
-
-        /* Weekly Plan Grid */
-        .weekly-plan-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin: 20px 0;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .week-column {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border: 2px solid #dee2e6;
-            text-align: center;
-        }
-
-        .week-column h4 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .week-quantity {
-            font-size: 24px;
-            font-weight: bold;
-            color: #495057;
-        }
-
-        .week-column.current {
-            border-color: #667eea;
-            background: #f0f4ff;
-        }
-
-        /* Order Input Styles */
-        .input-form {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #495057;
-        }
-
-        .form-group input, .form-group select {
-            padding: 10px;
-            border: 2px solid #dee2e6;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.3s;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-        }
-
-        .btn-success {
-            background: #28a745;
-        }
-
-        /* Orders Table */
-        .orders-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            overflow-x: auto;
-            display: block;
-        }
-
-        .orders-table table {
-            width: 100%;
-            min-width: 1200px;
-        }
-
-        .orders-table th {
-            background: #667eea;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            position: sticky;
-            top: 0;
-        }
-
-        .orders-table td {
-            padding: 10px;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .orders-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .priority-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .priority-no-compromise { background: #dc3545; color: white; }
-        .priority-very-high { background: #fd7e14; color: white; }
-        .priority-high { background: #ffc107; color: black; }
-        .priority-medium { background: #28a745; color: white; }
-        .priority-low { background: #17a2b8; color: white; }
-        .priority-very-low { background: #6c757d; color: white; }
-
-        /* Machine Config */
-        .machine-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .machine-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid #dee2e6;
-            transition: transform 0.3s;
-        }
-
-        .machine-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .machine-card h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-        }
-
-        .machine-info {
-            display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
-        }
-
-        /* Calendar Styles */
-        .calendar-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .calendar-nav {
-            display: flex;
-            gap: 10px;
-        }
-
-        .calendar {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .calendar th {
-            background: #667eea;
-            color: white;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .calendar td {
-            border: 1px solid #dee2e6;
-            padding: 10px;
-            height: 120px;
-            vertical-align: top;
-            cursor: pointer;
-            transition: background 0.3s;
-            position: relative;
-        }
-
-        .calendar td:hover {
-            background: #f8f9fa;
-        }
-
-        .calendar-day {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .calendar-items {
-            font-size: 11px;
-            color: #6c757d;
-        }
-
-        .calendar-item {
-            background: #e9ecef;
-            padding: 2px 4px;
-            margin: 2px 0;
-            border-radius: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .calendar-item.mto {
-            background: #e3f2fd;
-        }
-
-        .calendar-item.mts {
-            background: #fff3e0;
-        }
-
-        .today {
-            background: #fff3cd !important;
-        }
-
-        .no-planning {
-            background: #f8f9fa;
-            color: #6c757d;
-        }
-
-        /* Stock Management Section */
-        .stock-overview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stock-card {
-            background: white;
-            border: 2px solid #dee2e6;
-            border-radius: 10px;
-            padding: 20px;
-            transition: transform 0.3s;
-        }
-
-        .stock-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .stock-card h4 {
-            color: #667eea;
-            margin-bottom: 15px;
-        }
-
-        .stock-level {
-            display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transition: width 0.3s;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            width: 90%;
-            max-width: 900px;
-            max-height: 80vh;
-            overflow-y: auto;
-            border-radius: 10px;
-            animation: slideIn 0.3s;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-header {
-            background: #667eea;
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .shift-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .shift-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 15px;
-        }
-
-        .machine-schedule {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-        }
-
-        .machine-slot {
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #dee2e6;
-        }
-
-        .machine-name {
-            font-weight: bold;
-            color: #495057;
-            margin-bottom: 5px;
-        }
-
-        .product-code {
-            font-size: 12px;
-            color: #6c757d;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2em;
-            font-weight: bold;
-        }
-
-        .stat-label {
-            margin-top: 5px;
-            opacity: 0.9;
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <!-- Styles moved to style.css -->
 </head>
 <body>
     <div class="container">
@@ -629,7 +42,7 @@
                         <strong>File loaded!</strong> Review the data below before importing.
                     </div>
                     <div id="previewTable"></div>
-                    <button class="btn btn-success" onclick="confirmImport()">✅ Confirm Import</button>
+                    <button class="btn btn-success" onclick="confirmImport()">✅ Confirm & Auto-Plan</button>
                     <button class="btn btn-secondary" onclick="cancelImport()">Cancel</button>
                 </div>
             </div>
@@ -703,6 +116,10 @@
                                 <th>Week 3</th>
                                 <th>Week 4</th>
                                 <th>Week 5</th>
+                                <th>Week 6</th>
+                                <th>Week 7</th>
+                                <th>Week 8</th>
+                                <th>Week 9</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -810,22 +227,27 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script>
+    <script src="app.js"></script>
+        <!-- Migrated to app.js
         // Data Storage
         let orders = [];
+        // Machine capacities aligned to provided sheet (bags per shift)
+        // GM machines: 41,000 bags/shift; NL machines: 32,800 bags/shift
+        // One day assumed = 3 shifts
         let machines = [
-            { id: 'MC-GM-1', name: 'GM-1', capacity: 2900, speed: 150, efficiency: 0.95 },
-            { id: 'MC-GM-2', name: 'GM-2', capacity: 2900, speed: 150, efficiency: 0.95 },
-            { id: 'MC-GM-3', name: 'GM-3', capacity: 2900, speed: 150, efficiency: 0.95 },
-            { id: 'MC-GM-4', name: 'GM-4', capacity: 2900, speed: 150, efficiency: 0.95 },
-            { id: 'MC-GM-5', name: 'GM-5', capacity: 2900, speed: 150, efficiency: 0.95 },
-            { id: 'MC-GM-6', name: 'GM-6', capacity: 2900, speed: 150, efficiency: 0.95 },
-            { id: 'MC-NL-1', name: 'NL-1', capacity: 3500, speed: 80, efficiency: 0.90 },
-            { id: 'MC-NL-2', name: 'NL-2', capacity: 3500, speed: 80, efficiency: 0.90 }
+            { id: 'MC-GM-1', name: 'GM-1', bagsPerShift: 41000, speed: 150, efficiency: 0.95 },
+            { id: 'MC-GM-2', name: 'GM-2', bagsPerShift: 41000, speed: 150, efficiency: 0.95 },
+            { id: 'MC-GM-3', name: 'GM-3', bagsPerShift: 41000, speed: 150, efficiency: 0.95 },
+            { id: 'MC-GM-4', name: 'GM-4', bagsPerShift: 41000, speed: 150, efficiency: 0.95 },
+            { id: 'MC-GM-5', name: 'GM-5', bagsPerShift: 41000, speed: 150, efficiency: 0.95 },
+            { id: 'MC-GM-6', name: 'GM-6', bagsPerShift: 41000, speed: 150, efficiency: 0.95 },
+            { id: 'MC-NL-1', name: 'NL-1', bagsPerShift: 32800, speed: 80, efficiency: 0.90 },
+            { id: 'MC-NL-2', name: 'NL-2', bagsPerShift: 32800, speed: 80, efficiency: 0.90 }
         ];
         let schedule = {};
         let currentDate = new Date();
         let importedData = null;
+        let isProcessingUpload = false;
 
         // File Upload Handling
         const uploadArea = document.getElementById('uploadArea');
@@ -853,44 +275,92 @@
         });
 
         function handleFiles(files) {
-            if (files.length === 0) return;
+            if (files.length === 0 || isProcessingUpload) return;
+            isProcessingUpload = true;
             
             const file = files[0];
             const reader = new FileReader();
             
             reader.onload = function(e) {
+                try {
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, { type: 'array' });
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-                
                 processExcelData(jsonData);
+                } catch (err) {
+                    console.error('Upload parse error:', err);
+                    alert('Could not read the file. Please verify the format and try again.');
+                } finally {
+                    // Allow selecting the same file again
+                    fileInput.value = '';
+                    isProcessingUpload = false;
+                }
+            };
+            
+            reader.onerror = function() {
+                alert('Error reading file. Please try again.');
+                fileInput.value = '';
+                isProcessingUpload = false;
             };
             
             reader.readAsArrayBuffer(file);
         }
 
         function processExcelData(data) {
+            // Reset state for a fresh import
             importedData = [];
+            orders = [];
+            schedule = {};
             
             // Skip header row and process data
             for (let i = 1; i < data.length; i++) {
                 const row = data[i];
                 if (row[0]) { // Check if SAP CODE exists
+                    const bagsPerCarton = parseFloat(row[5]) || 250;
+                    const currentStockCartons = parseFloat(row[6]) || 0;
+                    const weekCover = parseFloat(row[7]) || 0;
+                    const weeks = [];
+                    for (let w = 1; w <= 9; w++) {
+                        const val = parseFloat(row[8 + w]) || 0; // I..Q are week1..week9
+                        weeks[w] = val; // store as bags directly
+                    }
+                    // If no weekly plan given, derive from monthly requirement and stock cover
+                    const monthlyReqCartons = parseFloat(row[4]) || 0;
+                    const monthlyReqBags = monthlyReqCartons * bagsPerCarton;
+                    const totalWeeksPlanned = (weeks[1]||0)+(weeks[2]||0)+(weeks[3]||0)+(weeks[4]||0)+(weeks[5]||0)+(weeks[6]||0)+(weeks[7]||0)+(weeks[8]||0)+(weeks[9]||0);
+                    if (totalWeeksPlanned === 0 && monthlyReqBags > 0) {
+                        const weeklyReqBags = Math.ceil(monthlyReqBags / 4);
+                        const currentStockBags = currentStockCartons * bagsPerCarton;
+                        const targetStockBags = (weekCover > 0 ? weekCover : 2) * weeklyReqBags;
+                        const deficitBags = Math.max(0, targetStockBags - currentStockBags);
+                        const addPerWeek = Math.ceil(deficitBags / 5);
+                        weeks[1] = weeklyReqBags + addPerWeek;
+                        weeks[2] = weeklyReqBags + addPerWeek;
+                        weeks[3] = weeklyReqBags + addPerWeek;
+                        weeks[4] = weeklyReqBags + addPerWeek;
+                        weeks[5] = weeklyReqBags + Math.max(0, deficitBags - (addPerWeek * 4));
+                        // Keep 6-9 as 0 unless provided
+                    }
                     const order = {
                         sapCode: row[0],
-                        priority: row[1] ? row[1].toLowerCase().replace(' ', '-') : 'medium',
+                        priority: row[1] ? row[1].toLowerCase().replace(/\s+/g, '-') : 'medium',
                         product: row[2] || '',
                         rollWidth: parseFloat(row[3]) || 0,
-                        monthlyReq: parseFloat(row[4]) || 0,
-                        noOfBags: parseFloat(row[5]) || 0,
-                        currentStock: parseFloat(row[6]) || 0,
-                        weekCover: parseFloat(row[7]) || 0,
-                        week1: parseFloat(row[9]) || 0,
-                        week2: parseFloat(row[10]) || 0,
-                        week3: parseFloat(row[11]) || 0,
-                        week4: parseFloat(row[12]) || 0,
-                        week5: parseFloat(row[13]) || 0,
+                        monthlyReqCartons: monthlyReqCartons,
+                        bagsPerCarton: bagsPerCarton,
+                        currentStockCartons: currentStockCartons,
+                        currentStockBags: currentStockCartons * bagsPerCarton,
+                        weekCover: weekCover || 2,
+                        week1: weeks[1] || 0,
+                        week2: weeks[2] || 0,
+                        week3: weeks[3] || 0,
+                        week4: weeks[4] || 0,
+                        week5: weeks[5] || 0,
+                        week6: weeks[6] || 0,
+                        week7: weeks[7] || 0,
+                        week8: weeks[8] || 0,
+                        week9: weeks[9] || 0,
                         // Determine if MTO or MTS based on weekly planning pattern
                         orderType: determineOrderType(row)
                     };
@@ -898,6 +368,10 @@
                 }
             }
             
+            if (!importedData || importedData.length === 0) {
+                alert('No rows detected in the uploaded sheet. Please check and try again.');
+                return;
+            }
             showImportPreview();
         }
 
@@ -916,31 +390,33 @@
             
             let html = '<table class="orders-table"><thead><tr>';
             html += '<th>SAP Code</th><th>Type</th><th>Priority</th><th>Product</th>';
-            html += '<th>Monthly Req</th><th>Stock</th><th>Week 1-5 Total</th>';
+            html += '<th>Monthly Req (cartons)</th><th>Stock (cartons)</th><th>Planned (bags)</th>';
             html += '</tr></thead><tbody>';
             
-            importedData.slice(0, 10).forEach(order => {
-                const weekTotal = order.week1 + order.week2 + order.week3 + order.week4 + order.week5;
+            importedData.forEach(order => {
+                const weekTotal = (order.week1 + order.week2 + order.week3 + order.week4 + order.week5 + order.week6 + order.week7 + order.week8 + order.week9);
                 html += `<tr>
                     <td>${order.sapCode}</td>
                     <td><span class="order-type-badge type-${order.orderType.toLowerCase()}">${order.orderType}</span></td>
                     <td><span class="priority-badge priority-${order.priority}">${order.priority.toUpperCase()}</span></td>
                     <td>${order.product.substring(0, 30)}...</td>
-                    <td>${order.monthlyReq}</td>
-                    <td>${order.currentStock}</td>
+                    <td>${order.monthlyReqCartons}</td>
+                    <td>${order.currentStockCartons}</td>
                     <td>${weekTotal}</td>
                 </tr>`;
             });
             
             html += '</tbody></table>';
-            if (importedData.length > 10) {
-                html += `<p style="margin-top: 10px; color: #6c757d;">Showing 10 of ${importedData.length} rows</p>`;
-            }
+            // Show all rows; no truncation
             
             previewTable.innerHTML = html;
         }
 
         function confirmImport() {
+            if (!importedData || importedData.length === 0) {
+                alert('No data to import. Please upload a valid file.');
+                return;
+            }
             importedData.forEach((data, index) => {
                 orders.push({
                     id: orders.length + index + 1,
@@ -949,14 +425,20 @@
                     priority: data.priority,
                     product: data.product,
                     rollWidth: data.rollWidth,
-                    monthlyReq: data.monthlyReq,
-                    currentStock: data.currentStock,
+                    monthlyReqCartons: data.monthlyReqCartons,
+                    bagsPerCarton: data.bagsPerCarton || 250,
+                    currentStockCartons: data.currentStockCartons,
+                    currentStockBags: data.currentStockBags,
                     weekCover: data.weekCover || 2,
                     week1: data.week1,
                     week2: data.week2,
                     week3: data.week3,
                     week4: data.week4,
                     week5: data.week5,
+                    week6: data.week6,
+                    week7: data.week7,
+                    week8: data.week8,
+                    week9: data.week9,
                     status: 'pending'
                 });
             });
@@ -973,9 +455,13 @@
                 </div>
             `;
             
+            // Automatically run planning and navigate to Orders tab for review
+            runPlanning();
+            // Clear imported snapshot so subsequent uploads start fresh
+            importedData = null;
             setTimeout(() => {
                 switchTab('orders');
-            }, 2000);
+            }, 500);
         }
 
         function cancelImport() {
@@ -1013,8 +499,10 @@
                 priority: document.getElementById('priority').value,
                 product: document.getElementById('productName').value,
                 rollWidth: parseInt(document.getElementById('rollWidth').value) || 0,
-                monthlyReq: parseInt(document.getElementById('monthlyReq').value) || 0,
-                currentStock: parseInt(document.getElementById('currentStock').value) || 0,
+                monthlyReqCartons: parseInt(document.getElementById('monthlyReq').value) || 0,
+                bagsPerCarton: 250,
+                currentStockCartons: parseInt(document.getElementById('currentStock').value) || 0,
+                currentStockBags: (parseInt(document.getElementById('currentStock').value) || 0) * 250,
                 weekCover: parseInt(document.getElementById('weeklyCover').value) || 2,
                 week1: 0,
                 week2: 0,
@@ -1024,18 +512,17 @@
                 status: 'pending'
             };
             
-            // Calculate weekly requirements for MTS items
+            // Calculate weekly requirements for MTS items (bags)
             if (order.orderType === 'MTS') {
-                const weeklyReq = Math.ceil(order.monthlyReq / 4);
-                const targetStock = weeklyReq * order.weekCover;
-                const deficit = Math.max(0, targetStock - order.currentStock);
-                
-                // Distribute deficit across weeks
-                order.week1 = Math.ceil(deficit / 5) + weeklyReq;
-                order.week2 = Math.ceil(deficit / 5) + weeklyReq;
-                order.week3 = Math.ceil(deficit / 5) + weeklyReq;
-                order.week4 = Math.ceil(deficit / 5) + weeklyReq;
-                order.week5 = deficit - (Math.ceil(deficit / 5) * 4) + weeklyReq;
+                const weeklyReqBags = Math.ceil((order.monthlyReqCartons * order.bagsPerCarton) / 4);
+                const targetStockBags = weeklyReqBags * order.weekCover;
+                const deficitBags = Math.max(0, targetStockBags - order.currentStockBags);
+                const addPerWeek = Math.ceil(deficitBags / 5);
+                order.week1 = addPerWeek + weeklyReqBags;
+                order.week2 = addPerWeek + weeklyReqBags;
+                order.week3 = addPerWeek + weeklyReqBags;
+                order.week4 = addPerWeek + weeklyReqBags;
+                order.week5 = deficitBags - (addPerWeek * 4) + weeklyReqBags;
             }
             
             if (order.sapCode && order.product) {
@@ -1062,8 +549,8 @@
             tbody.innerHTML = '';
             
             orders.forEach(order => {
-                const weeklyReq = order.monthlyReq / 4;
-                const coverWeeks = weeklyReq > 0 ? (order.currentStock / weeklyReq).toFixed(1) : 0;
+                const weeklyReqCartons = (order.monthlyReqCartons || 0) / 4;
+                const coverWeeks = weeklyReqCartons > 0 ? (order.currentStockCartons / weeklyReqCartons).toFixed(1) : 0;
                 let stockIndicator = '';
                 
                 if (order.orderType === 'MTS') {
@@ -1083,14 +570,18 @@
                     <td><span class="priority-badge priority-${order.priority}">${order.priority.replace('-', ' ').toUpperCase()}</span></td>
                     <td title="${order.product}">${order.product.substring(0, 30)}${order.product.length > 30 ? '...' : ''}</td>
                     <td>${order.rollWidth} mm</td>
-                    <td>${order.monthlyReq}</td>
-                    <td>${order.currentStock} ${stockIndicator}</td>
+                    <td>${order.monthlyReqCartons || 0}</td>
+                    <td>${order.currentStockCartons || 0} ${stockIndicator}</td>
                     <td>${coverWeeks}</td>
-                    <td>${order.week1 || '-'}</td>
-                    <td>${order.week2 || '-'}</td>
-                    <td>${order.week3 || '-'}</td>
-                    <td>${order.week4 || '-'}</td>
-                    <td>${order.week5 || '-'}</td>
+                    <td>${order.week1 ? Math.floor(order.week1 / (order.bagsPerCarton || 250)) : '-'}</td>
+                    <td>${order.week2 ? Math.floor(order.week2 / (order.bagsPerCarton || 250)) : '-'}</td>
+                    <td>${order.week3 ? Math.floor(order.week3 / (order.bagsPerCarton || 250)) : '-'}</td>
+                    <td>${order.week4 ? Math.floor(order.week4 / (order.bagsPerCarton || 250)) : '-'}</td>
+                    <td>${order.week5 ? Math.floor(order.week5 / (order.bagsPerCarton || 250)) : '-'}</td>
+                    <td>${order.week6 ? Math.floor(order.week6 / (order.bagsPerCarton || 250)) : '-'}</td>
+                    <td>${order.week7 ? Math.floor(order.week7 / (order.bagsPerCarton || 250)) : '-'}</td>
+                    <td>${order.week8 ? Math.floor(order.week8 / (order.bagsPerCarton || 250)) : '-'}</td>
+                    <td>${order.week9 ? Math.floor(order.week9 / (order.bagsPerCarton || 250)) : '-'}</td>
                     <td><button class="btn" onclick="deleteOrder(${order.id})">Delete</button></td>
                 `;
             });
@@ -1111,10 +602,10 @@
             stockDiv.innerHTML = '';
             
             mtsOrders.forEach(order => {
-                const weeklyReq = order.monthlyReq / 4;
-                const coverWeeks = weeklyReq > 0 ? (order.currentStock / weeklyReq) : 0;
-                const targetStock = weeklyReq * order.weekCover;
-                const stockPercent = targetStock > 0 ? (order.currentStock / targetStock * 100) : 0;
+                const weeklyReqCartons = (order.monthlyReqCartons || 0) / 4;
+                const coverWeeks = weeklyReqCartons > 0 ? (order.currentStockCartons / weeklyReqCartons) : 0;
+                const targetStockCartons = weeklyReqCartons * order.weekCover;
+                const stockPercent = targetStockCartons > 0 ? (order.currentStockCartons / targetStockCartons * 100) : 0;
                 
                 const card = document.createElement('div');
                 card.className = 'stock-card';
@@ -1123,11 +614,11 @@
                     <p style="font-size: 12px; color: #6c757d;">${order.product.substring(0, 25)}...</p>
                     <div class="stock-level">
                         <span>Current:</span>
-                        <strong>${order.currentStock} cartons</strong>
+                        <strong>${order.currentStockCartons || 0} cartons</strong>
                     </div>
                     <div class="stock-level">
                         <span>Target (${order.weekCover} weeks):</span>
-                        <strong>${Math.ceil(targetStock)} cartons</strong>
+                        <strong>${Math.ceil(targetStockCartons)} cartons</strong>
                     </div>
                     <div class="stock-level">
                         <span>Coverage:</span>
@@ -1144,14 +635,14 @@
             document.getElementById('mtsCount').textContent = mtsOrders.length;
             
             const avgCover = mtsOrders.reduce((acc, order) => {
-                const weeklyReq = order.monthlyReq / 4;
-                return acc + (weeklyReq > 0 ? order.currentStock / weeklyReq : 0);
+                const weeklyReqCartons = (order.monthlyReqCartons || 0) / 4;
+                return acc + (weeklyReqCartons > 0 ? order.currentStockCartons / weeklyReqCartons : 0);
             }, 0) / (mtsOrders.length || 1);
             document.getElementById('avgCover').textContent = avgCover.toFixed(1);
             
             const critical = mtsOrders.filter(order => {
-                const weeklyReq = order.monthlyReq / 4;
-                return weeklyReq > 0 && (order.currentStock / weeklyReq) < 1;
+                const weeklyReqCartons = (order.monthlyReqCartons || 0) / 4;
+                return weeklyReqCartons > 0 && (order.currentStockCartons / weeklyReqCartons) < 1;
             }).length;
             document.getElementById('criticalItems').textContent = critical;
         }
@@ -1164,19 +655,43 @@
             machines.forEach(machine => {
                 const card = document.createElement('div');
                 card.className = 'machine-card';
+                // Collect next 5 scheduled slots for this machine
+                const upcoming = [];
+                const sortedDates = Object.keys(schedule).sort();
+                for (let d of sortedDates) {
+                    if (upcoming.length >= 5) break;
+                    const items = (schedule[d] || []).filter(s => s.machine === machine.id);
+                    items.sort((a,b) => a.shift - b.shift).forEach(it => {
+                        if (upcoming.length < 5) {
+                            const percent = Math.round(((it.quantityBags || 0) / machine.bagsPerShift) * 100);
+                            const orderObj = orders.find(o => o.id === it.orderId);
+                            const label = orderObj ? `${it.sapCode} - ${orderObj.product}` : it.sapCode;
+                            upcoming.push({ date: d, shift: it.shift, label, qty: it.quantityBags||0, percent });
+                        }
+                    });
+                }
+
+                const upcomingHtml = upcoming.length === 0 
+                    ? '<div class="product-code">No upcoming allocations</div>' 
+                    : upcoming.map(u => `<div class="product-code">${u.date} • Shift-${u.shift} • ${u.label} — ${u.qty.toLocaleString()} bags (${u.percent}%)</div>`).join('');
+
                 card.innerHTML = `
                     <h3>${machine.name}</h3>
                     <div class="machine-info">
-                        <span>Capacity:</span>
-                        <strong>${machine.capacity} cartons/day</strong>
+                        <span>Capacity (bags/shift):</span>
+                        <strong>${machine.bagsPerShift.toLocaleString()} bags</strong>
                     </div>
                     <div class="machine-info">
-                        <span>Speed:</span>
-                        <strong>${machine.speed} m/min</strong>
+                        <span>Approx cartons/day:</span>
+                        <strong>${Math.floor((machine.bagsPerShift * 3) / 250).toLocaleString()} cartons</strong>
                     </div>
                     <div class="machine-info">
                         <span>Efficiency:</span>
                         <strong>${(machine.efficiency * 100).toFixed(0)}%</strong>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <div class="machine-name">Upcoming:</div>
+                        ${upcomingHtml}
                     </div>
                 `;
                 grid.appendChild(card);
@@ -1217,6 +732,7 @@
                 const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
                 const isWeekend = (firstDay + day - 1) % 7 === 0 || (firstDay + day - 1) % 7 === 6;
                 
+                const totalBags = daySchedule.reduce((acc, item) => acc + (item.quantityBags || 0), 0);
                 html += `<td class="${isToday ? 'today' : ''} ${isWeekend ? 'no-planning' : ''}" onclick="showDayDetail('${dateStr}')">
                     <div class="calendar-day">${day}</div>
                     <div class="calendar-items">`;
@@ -1225,7 +741,8 @@
                     daySchedule.slice(0, 3).forEach(item => {
                         const order = orders.find(o => o.id === item.orderId);
                         const typeClass = order ? order.orderType.toLowerCase() : '';
-                        html += `<div class="calendar-item ${typeClass}">${item.sapCode}</div>`;
+                        const productLabel = order ? ` - ${order.product.substring(0, 12)}${order.product.length > 12 ? '…' : ''}` : '';
+                        html += `<div class="calendar-item ${typeClass}">${item.sapCode}${productLabel}</div>`;
                     });
                     if (daySchedule.length > 3) {
                         html += `<div class="calendar-item">+${daySchedule.length - 3} more...</div>`;
@@ -1234,6 +751,9 @@
                     html += '<div style="color: #ccc;">No planning</div>';
                 }
                 
+                if (!isWeekend && totalBags > 0) {
+                    html += `<div class="calendar-item" style="margin-top:6px;font-weight:600;">Total: ${totalBags.toLocaleString()} bags</div>`;
+                }
                 html += '</div></td>';
             }
             
@@ -1292,6 +812,13 @@
                     
                     // Group by shift
                     for (let shift = 1; shift <= 3; shift++) {
+                        // Build per-shift totals by product
+                        const totalsByProduct = {};
+                        const itemsForShift = daySchedule.filter(d => d.shift === shift);
+                        itemsForShift.forEach(item => {
+                            const key = `${item.sapCode}__${item.product}`;
+                            totalsByProduct[key] = (totalsByProduct[key] || 0) + item.quantityBags;
+                        });
                         html += `<div class="shift-section">
                             <div class="shift-title">SHIFT-${shift}</div>
                             <div class="machine-schedule">`;
@@ -1308,7 +835,7 @@
                                 shiftItems.forEach(item => {
                                     const order = orders.find(o => o.id === item.orderId);
                                     const typeLabel = order ? `(${order.orderType})` : '';
-                                    html += `<div class="product-code">${item.sapCode} ${typeLabel}</div>`;
+                                    html += `<div class="product-code">${item.sapCode} - ${item.product} ${typeLabel} — ${item.quantityBags.toLocaleString()} bags</div>`;
                                 });
                             } else {
                                 html += '<div class="product-code">No planning</div>';
@@ -1317,7 +844,58 @@
                             html += '</div>';
                         });
                         
-                        html += '</div></div>';
+                        // Totals for shift
+                        const totalBags = Object.values(totalsByProduct).reduce((a, b) => a + b, 0);
+                        html += `</div>
+                            <div style="margin-top:10px; font-size:12px; color:#495057;">
+                                <strong>Shift total:</strong> ${totalBags.toLocaleString()} bags
+                                <div>` +
+                                Object.entries(totalsByProduct).map(([key, qty]) => {
+                                    const [sap, prod] = key.split('__');
+                                    return `<div>- ${sap} - ${prod}: <strong>${qty.toLocaleString()} bags</strong></div>`;
+                                }).join('') +
+                            `</div>
+                            </div>
+                        </div>`;
+                    }
+                    
+                    // End-of-day summary: produced today and remaining per order
+                    const producedTodayByOrder = {};
+                    daySchedule.forEach(item => {
+                        producedTodayByOrder[item.sapCode] = (producedTodayByOrder[item.sapCode] || 0) + (item.quantityBags || 0);
+                    });
+
+                    // Compute produced-to-date up to this day (inclusive)
+                    const producedToDateByOrder = {};
+                    const allDates = Object.keys(schedule).sort();
+                    for (let d of allDates) {
+                        if (d > dateStr) break;
+                        (schedule[d] || []).forEach(item => {
+                            producedToDateByOrder[item.sapCode] = (producedToDateByOrder[item.sapCode] || 0) + (item.quantityBags || 0);
+                        });
+                    }
+
+                    // Total required per order (sum of week1..week9)
+                    const totalRequiredByOrder = {};
+                    orders.forEach(o => {
+                        const totalReq = (o.week1||0)+(o.week2||0)+(o.week3||0)+(o.week4||0)+(o.week5||0)+(o.week6||0)+(o.week7||0)+(o.week8||0)+(o.week9||0);
+                        totalRequiredByOrder[o.sapCode] = totalReq;
+                    });
+
+                    const ordersInDay = Object.keys(producedTodayByOrder);
+                    if (ordersInDay.length > 0) {
+                        html += '<div class="shift-section">';
+                        html += '<div class="shift-title">End of day summary</div>';
+                        ordersInDay.forEach(sap => {
+                            const producedToday = producedTodayByOrder[sap] || 0;
+                            const producedToDate = producedToDateByOrder[sap] || 0;
+                            const totalReq = totalRequiredByOrder[sap] || 0;
+                            const remaining = Math.max(0, totalReq - producedToDate);
+                            const orderObj = orders.find(o => o.sapCode === sap);
+                            const label = orderObj ? `${sap} - ${orderObj.product}` : sap;
+                            html += `<div class="machine-schedule"><div class="product-code"><strong>${label}</strong>: Produced today ${producedToday.toLocaleString()} bags • Remaining ${remaining.toLocaleString()} bags</div></div>`;
+                        });
+                        html += '</div>';
                     }
                     
                     modalBody.innerHTML = html;
@@ -1331,7 +909,7 @@
             document.getElementById('dayModal').classList.remove('active');
         }
 
-        // Automated Planning Algorithm
+        // Automated Planning Algorithm (bags as base unit; 1 carton = 250 bags)
         function runPlanning() {
             // Sort orders by priority and type (MTS gets priority for maintaining stock)
             const priorityOrder = {
@@ -1346,11 +924,11 @@
             const pendingOrders = orders.filter(o => o.status === 'pending').sort((a, b) => {
                 // MTS with critical stock gets highest priority
                 if (a.orderType === 'MTS' && b.orderType === 'MTO') {
-                    const aWeeklyCover = a.currentStock / (a.monthlyReq / 4);
+                    const aWeeklyCover = (a.currentStockCartons || 0) / (((a.monthlyReqCartons || 0) / 4) || 1);
                     if (aWeeklyCover < 1) return -1;
                 }
                 if (b.orderType === 'MTS' && a.orderType === 'MTO') {
-                    const bWeeklyCover = b.currentStock / (b.monthlyReq / 4);
+                    const bWeeklyCover = (b.currentStockCartons || 0) / (((b.monthlyReqCartons || 0) / 4) || 1);
                     if (bWeeklyCover < 1) return 1;
                 }
                 
@@ -1363,49 +941,58 @@
             // Clear existing schedule
             schedule = {};
             
-            // Plan each order based on weekly requirements
+            // Helper: move to next working day (skip Sat/Sun)
+            function nextWorkingDay(date) {
+                const d = new Date(date);
+                d.setDate(d.getDate() + 1);
+                while (d.getDay() === 0 || d.getDay() === 6) {
+                    d.setDate(d.getDate() + 1);
+                }
+                return d;
+            }
+
+            // Helper: ensure date is a working day
+            function ensureWorkingDay(date) {
+                const d = new Date(date);
+                while (d.getDay() === 0 || d.getDay() === 6) {
+                    d.setDate(d.getDate() + 1);
+                }
+                return d;
+            }
+
+            // Plan each order based on weekly requirements (cartons → bags)
             pendingOrders.forEach(order => {
-                let currentWeek = 1;
-                let currentDate = new Date();
+                const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                let planDate = ensureWorkingDay(monthStart);
+                let allocatedForThisOrder = 0;
                 
-                // Process each week's requirement
-                for (let week = 1; week <= 5; week++) {
+                // Process each week's requirement (weeks are provided in bags directly)
+                for (let week = 1; week <= 9; week++) {
                     const weekKey = `week${week}`;
-                    let weekQty = order[weekKey];
+                    let weekQty = order[weekKey] || 0; // already in bags
                     
                     if (weekQty > 0) {
-                        // Calculate the date for this week
-                        const weekDate = new Date(currentDate);
-                        weekDate.setDate(weekDate.getDate() + (week - 1) * 7);
-                        
-                        // Distribute across working days of the week
+                        // Distribute across working days, carrying over beyond week as needed
                         let remainingQty = weekQty;
-                        for (let day = 0; day < 5 && remainingQty > 0; day++) {
-                            const planDate = new Date(weekDate);
-                            planDate.setDate(planDate.getDate() + day);
-                            
-                            // Skip weekends
-                            while (planDate.getDay() === 0 || planDate.getDay() === 6) {
-                                planDate.setDate(planDate.getDate() + 1);
-                            }
-                            
+                        let safetyCounter = 0; // prevent infinite loop
+                        while (remainingQty > 0 && safetyCounter < 365) {
                             const dateStr = planDate.toISOString().split('T')[0];
-                            
                             if (!schedule[dateStr]) {
                                 schedule[dateStr] = [];
                             }
                             
-                            // Find available machine and shift
-                            for (let shift = 1; shift <= 3 && remainingQty > 0; shift++) {
+                            // Try to place into any machine/shift, allowing multiple allocations per slot up to capacity
+                            const dayOfWeek = planDate.getDay();
+                            const maxShifts = (dayOfWeek === 5) ? 2 : 3; // Friday 2 shifts
+                            for (let shift = 1; shift <= maxShifts && remainingQty > 0; shift++) {
                                 for (let machine of machines) {
-                                    const existingAllocation = schedule[dateStr].filter(
-                                        s => s.machine === machine.id && s.shift === shift
-                                    );
-                                    
-                                    if (existingAllocation.length === 0) {
-                                        const dailyCapacity = machine.capacity / 3; // Per shift
-                                        const allocQty = Math.min(remainingQty, dailyCapacity);
-                                        
+                                    const usedOnSlot = schedule[dateStr]
+                                        .filter(s => s.machine === machine.id && s.shift === shift)
+                                        .reduce((acc, s) => acc + (s.quantityBags || 0), 0);
+                                    const freeCapacity = Math.max(0, machine.bagsPerShift - usedOnSlot);
+                                    if (freeCapacity <= 0) continue;
+
+                                    const allocQty = Math.min(remainingQty, freeCapacity);
                                         schedule[dateStr].push({
                                             orderId: order.id,
                                             sapCode: order.sapCode,
@@ -1413,21 +1000,25 @@
                                             orderType: order.orderType,
                                             machine: machine.id,
                                             shift: shift,
-                                            quantity: allocQty
+                                        quantityBags: allocQty,
+                                        quantityCartons: Math.floor(allocQty / 250)
                                         });
-                                        
                                         remainingQty -= allocQty;
-                                        
+                                    allocatedForThisOrder += allocQty;
                                         if (remainingQty <= 0) break;
                                     }
                                 }
-                                if (remainingQty <= 0) break;
+
+                            if (remainingQty > 0) {
+                                planDate = nextWorkingDay(planDate);
+                                safetyCounter++;
                             }
                         }
                     }
                 }
                 
-                order.status = 'planned';
+                // Mark as planned only if something was allocated
+                order.status = allocatedForThisOrder > 0 ? 'planned' : 'pending';
             });
             
             updateOrdersTable();
@@ -1463,7 +1054,8 @@
             renderCalendar();
             updateStats();
         };
-
+        
+        
         // Close modal on outside click
         window.onclick = function(event) {
             const modal = document.getElementById('dayModal');
@@ -1471,6 +1063,5 @@
                 closeModal();
             }
         };
-    </script>
-</body>
-</html>
+        
+        -->
